@@ -1,0 +1,2 @@
+# BazarScraper
+Maturitní práce
