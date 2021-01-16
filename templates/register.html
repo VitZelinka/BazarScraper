@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
+</head>
+<body class="gridContainer" id="loginPageBackground">
+  <div class="registerBox">
+    <form method="POST">
+      <input type="text" placeholder="Username" class="inputField" name="user">
+      <br>
+      <input type="password" placeholder="Password" class="inputField" name="pass">
+      <br>
+      <input type="text" placeholder="E-mail" class="inputField" name="email">
+      <br>
+      <button class="submitButton" type="submit">Register</button>
+    </form>
+  </div>
+</body>
+</html>
