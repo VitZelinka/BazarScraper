@@ -25,14 +25,29 @@ def auth():
     if request.method == "POST":
         if "loginForm" in request.form:
             name = request.form["user"]
-            passw = request.form.get("pass")
-            print(name, passw)
-            hashPass = generate_password_hash(passw, method="sha256", salt_length=10)
-            respo = check_password_hash(hashPass, "lmao")
+            passw = request.form["pass"]
+            cur = mysql.connection.cursor()
+            cur.execute(f"SELECT password FROM users WHERE username='{name}';")
+            dbresponse = cur.fetchall()
+            cur.close()
+            pass_from_db = dbresponse[0][0]
+            respo = check_password_hash(pass_from_db, passw)
+            print(respo)
         elif "registerForm" in request.form:
             name = request.form["user"]
-            passw = request.form.get("pass")
-            print(name, passw)
+            passw = request.form["pass"]
+            cur = mysql.connection.cursor()
+            cur.execute(f"SELECT EXISTS(SELECT * FROM users WHERE username = '{name}');")
+            dbresponse = cur.fetchall()
+            if dbresponse[0][0] == 0:
+                print("xd")
+                hashPass = generate_password_hash(passw, method="sha256", salt_length=10)
+                print(type(hashPass))
+                cur.execute(f"INSERT INTO users (username, password) VALUES ('{name}', '{hashPass}');")
+                mysql.connection.commit()
+                cur.close()
+            else:
+                print("Username already exists.")
     return render_template("login.html")
 
 
