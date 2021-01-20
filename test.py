@@ -1,4 +1,9 @@
+import time
 import requests
-r = requests.get('https://www.python.org')
-r.status_code
+r = requests.get('http://localhost:5000')
+print(r.status_code)
 print(r.text)
+
+f = open("page.html", "w")
+f.write(r.text)
+time.sleep(5)

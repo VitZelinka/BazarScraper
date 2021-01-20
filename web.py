@@ -1,4 +1,6 @@
+from sys import flags
 from flask import Flask, request, render_template
+import flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
 
@@ -15,6 +17,7 @@ mysql = MySQL(app)
 @app.route('/')
 @app.route('/home')
 def index():
+    #print(flask.request.remote_addr)
     user = {'username': 'Kokt'}
     return render_template("index.html", title="XD", user=user)
 
