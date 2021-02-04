@@ -2,3 +2,4 @@ virenv
 __pycache__
 .vscode
 .gitingore
+test.py

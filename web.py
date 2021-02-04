@@ -1,5 +1,5 @@
 from sys import flags
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, session, redirect, url_for
 import flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -18,13 +18,14 @@ mysql = MySQL(app)
 @app.route('/home')
 def index():
     #print(flask.request.remote_addr)
-    user = {'username': 'Kokt'}
+    user = {'username': 'JGHdkjfhskjf'}
     return render_template("index.html", title="XD", user=user)
 
 
-@app.route("/login", methods=["GET", "POST"])
-@app.route("/register", methods=["GET", "POST"])
+@app.route("/authorize", methods=["GET", "POST"])
 def auth():
+    if "username" in session:
+        return "<h1>ALREADY LOGGED IN</h1>"
     if request.method == "POST":
         if "loginForm" in request.form:
             name = request.form["user"]
@@ -35,7 +36,13 @@ def auth():
             cur.close()
             pass_from_db = dbresponse[0][0]
             respo = check_password_hash(pass_from_db, passw)
-            print(respo)
+            if respo == True:
+                session["username"] = name
+                return "<h1>LOGGED IN</h1>"
+            elif respo == False:
+                return "<h1>WRONG USERNAME OR PASS</h1>"
+            else:
+                return "<h1>UNKNOWN ERROR</h1>"
         elif "registerForm" in request.form:
             name = request.form["user"]
             passw = request.form["pass"]
@@ -43,14 +50,13 @@ def auth():
             cur.execute(f"SELECT EXISTS(SELECT * FROM users WHERE username = '{name}');")
             dbresponse = cur.fetchall()
             if dbresponse[0][0] == 0:
-                print("xd")
+                print("Succesfully registered.")
                 hashPass = generate_password_hash(passw, method="sha256", salt_length=10)
-                print(type(hashPass))
                 cur.execute(f"INSERT INTO users (username, password) VALUES ('{name}', '{hashPass}');")
                 mysql.connection.commit()
                 cur.close()
             else:
-                print("Username already exists.")
+                print("Username already exists.") #unfinished
     return render_template("login.html")
 
 
@@ -67,6 +73,12 @@ def test():
 @app.route("/admin")
 def admin():
     return "admin"
+
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('auth'))
 
 
 if __name__ == "__main__":
