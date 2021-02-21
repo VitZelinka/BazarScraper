@@ -1,12 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>Login/Register</title>
   <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
 </head>
 <body class="gridContainer" id="loginPageBackground">
+  <div class="top-navbar">
+    <img class="logo" src="logo_white.png" onclick="location.href='/home'">
+    <ul class="top-navbar-list">
+      <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
+      <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
+      <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Register</button></li>
+    </ul>
+  </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
   <div class="loginBox">
     <form method="POST">
       <input type="text" placeholder="Username" class="inputField" name="user">
@@ -22,8 +35,6 @@
       <br>
       <button class="submitButton" type="submit" name="registerForm">Register</button>
     </form>
-<script data-ad-client="pub-5434730204209500" async src="https://pagead2.googlesyndication.com/
-pagead/js/adsbygoogle.js"></script>
   </div>
 </body>
 </html>

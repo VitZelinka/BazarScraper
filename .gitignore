@@ -2,4 +2,6 @@ virenv
 __pycache__
 .vscode
 .gitingore
-test.py
+static/video.mp4
+placeholder.png
+template.html

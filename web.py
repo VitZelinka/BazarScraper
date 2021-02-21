@@ -3,6 +3,7 @@ from flask import Flask, request, render_template, session, redirect, url_for
 import flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
+from functions import dbSelectCall
 
 app = Flask(__name__)
 
@@ -25,24 +26,24 @@ def index():
 @app.route("/authorize", methods=["GET", "POST"])
 def auth():
     if "username" in session:
+        print(session["username"])
         return "<h1>ALREADY LOGGED IN</h1>"
     if request.method == "POST":
         if "loginForm" in request.form:
             name = request.form["user"]
             passw = request.form["pass"]
-            cur = mysql.connection.cursor()
-            cur.execute(f"SELECT password FROM users WHERE username='{name}';")
-            dbresponse = cur.fetchall()
-            cur.close()
-            pass_from_db = dbresponse[0][0]
-            respo = check_password_hash(pass_from_db, passw)
-            if respo == True:
-                session["username"] = name
-                return "<h1>LOGGED IN</h1>"
-            elif respo == False:
-                return "<h1>WRONG USERNAME OR PASS</h1>"
+            dbresponse = dbSelectCall(mysql, f"SELECT password FROM users WHERE username='{name}';")
+            if len(dbresponse) == 1:
+                respo = check_password_hash(dbresponse[0][0], passw)
+                if respo == True:
+                    session["username"] = name
+                    return "<h1>LOGGED IN</h1>"
+                elif respo == False:
+                    return "<h1>WRONG USERNAME OR PASS</h1>"
+                else:
+                    return "<h1>UNKNOWN ERROR</h1>"
             else:
-                return "<h1>UNKNOWN ERROR</h1>"
+                return "<h1>WRONG USERNAME OR PASS2</h1>"
         elif "registerForm" in request.form:
             name = request.form["user"]
             passw = request.form["pass"]
@@ -65,14 +66,31 @@ def inzerat(xd):
     return xd
 
 
-@app.route("/test")
-def test():
-    return "test"
+@app.route("/browse")
+def browse():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT heading, imgurl FROM items;")
+    dbresponse = cur.fetchall()
+    cur.close()
+    return render_template("browse.html", items = dbresponse)
+
+
+@app.route("/profile")
+def profile():
+    return "profile"
 
 
 @app.route("/admin")
 def admin():
-    return "admin"
+    memexd = "itemid"
+    xddd = dbSelectCall(mysql, f"SELECT {memexd} FROM items;")
+    print(xddd[0][0])
+    return str(xddd[0][0])
+
+
+@app.route("/test")
+def test():
+    return render_template("test.html")
 
 
 @app.route('/logout')
@@ -82,4 +100,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=False)

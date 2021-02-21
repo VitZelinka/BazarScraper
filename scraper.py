@@ -49,11 +49,11 @@ def scrapeSbazarData(urls):
             try:
                 imgURL = img["src"]
             except:
-                imgURL = "placeholder.png"
+                imgURL = "static/placeholder.png"
             heading = soup.find("h1", class_="p-uw-item__header").text
             cur.execute(f"INSERT INTO items (url, imgurl, heading, bazar) VALUES ('{url}', '{imgURL}', '{heading}', 'sbazar');")
             mysql.commit()
-            print(f"URL {url} used.")
+            print(f"URL {url} scraped.")
     cur.close()
     
 
