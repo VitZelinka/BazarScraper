@@ -36,5 +36,11 @@
       <button class="submitButton" type="submit" name="registerForm">Register</button>
     </form>
   </div>
+  <br>
+  <br>
+  <br>
+  {% if authFailed %}
+    <h1>Wrong username or password.</h1>
+  {% endif %}
 </body>
 </html>

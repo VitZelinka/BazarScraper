@@ -19,15 +19,16 @@ mysql = MySQL(app)
 @app.route('/home')
 def index():
     #print(flask.request.remote_addr)
-    user = {'username': 'JGHdkjfhskjf'}
-    return render_template("index.html", title="XD", user=user)
+    if "username" in session:
+        return render_template("index.html", loggedIn=True)
+    else:
+        return render_template("index.html", loggedIn=False)
 
 
 @app.route("/authorize", methods=["GET", "POST"])
 def auth():
     if "username" in session:
-        print(session["username"])
-        return "<h1>ALREADY LOGGED IN</h1>"
+        return redirect(url_for('profile'))
     if request.method == "POST":
         if "loginForm" in request.form:
             name = request.form["user"]
@@ -37,13 +38,11 @@ def auth():
                 respo = check_password_hash(dbresponse[0][0], passw)
                 if respo == True:
                     session["username"] = name
-                    return "<h1>LOGGED IN</h1>"
-                elif respo == False:
-                    return "<h1>WRONG USERNAME OR PASS</h1>"
+                    return redirect(url_for('profile'))
                 else:
-                    return "<h1>UNKNOWN ERROR</h1>"
+                    return render_template("login.html", authFailed=True)
             else:
-                return "<h1>WRONG USERNAME OR PASS2</h1>"
+                return render_template("login.html", authFailed=True)
         elif "registerForm" in request.form:
             name = request.form["user"]
             passw = request.form["pass"]
@@ -56,6 +55,8 @@ def auth():
                 cur.execute(f"INSERT INTO users (username, password) VALUES ('{name}', '{hashPass}');")
                 mysql.connection.commit()
                 cur.close()
+                session["username"] = name
+                return redirect(url_for('profile'))
             else:
                 print("Username already exists.") #unfinished
     return render_template("login.html")
@@ -68,16 +69,16 @@ def inzerat(xd):
 
 @app.route("/browse")
 def browse():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT heading, imgurl FROM items;")
-    dbresponse = cur.fetchall()
-    cur.close()
-    return render_template("browse.html", items = dbresponse)
+    dbresponse = dbSelectCall(mysql, "SELECT heading, imgurl FROM items;")
+    if "username" in session:
+        return render_template("browse.html", items=dbresponse, loggedIn=True)
+    else:
+        return render_template("browse.html", items=dbresponse, loggedIn=False)
 
 
 @app.route("/profile")
 def profile():
-    return "profile"
+    return render_template("profile.html", username = session["username"])
 
 
 @app.route("/admin")
@@ -96,7 +97,7 @@ def test():
 @app.route('/logout')
 def logout():
     session.pop('username', None)
-    return redirect(url_for('auth'))
+    return redirect(url_for('index'))
 
 
 if __name__ == "__main__":

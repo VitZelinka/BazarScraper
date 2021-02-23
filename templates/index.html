@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html lang="cs">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
-  <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
-</head>
-<body>
-  <div class="page">
-    <div class="top-navbar">
-      <img class="logo" src="logo_white.png" onclick="showHome()">
-      <ul class="top-navbar-list">
-        <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
-        <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
-        <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Register</button></li>
-      </ul>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
+  </head>
+  <body>
+    <div class="page">
+      <div class="top-navbar">
+        <img class="logo" src="logo_white.png" onclick="showHome()">
+        <ul class="top-navbar-list">
+          <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
+          <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
+          {% if loggedIn == True %}
+            <li><button class="top-navbar-button" onclick="location.href='/profile'">Profile</button></li>
+          {% else %}
+            <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Register</button></li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="content" id="homePage">
+        <h1>Bazar Scraper</h1>
+        <p>
+          Vítejte na stránce Bazar Scraper
+        </p>
+      </div>
+      <div class="color-cover"></div>
+      <video autoplay muted loop>
+        <source src="static/video.mp4" type="video/mp4">
+      </video>
     </div>
-    <div class="content" id="homePage">
-      <h1>Bazar Scraper</h1>
-      <p>
-        Vítejte na stránce Bazar Scraper
-      </p>
-    </div>
-    <div class="color-cover"></div>
-    <video autoplay muted loop>
-      <source src="static/video.mp4" type="video/mp4">
-    </video>
-  </div>
-  <script src="static/buttonFunc.js"></script>
-</body>
+    <script src="static/buttonFunc.js"></script>
+  </body>
 </html>
