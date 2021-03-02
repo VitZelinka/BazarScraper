@@ -62,14 +62,19 @@ def auth():
     return render_template("login.html")
 
 
-@app.route("/inzerat/<xd>")
-def inzerat(xd):
-    return xd
+@app.route('/data')
+def data():
+    # here we want to get the value of user (i.e. ?user=some-value)
+    user = request.args.get('user')
 
 
 @app.route("/browse")
 def browse():
-    dbresponse = dbSelectCall(mysql, "SELECT heading, imgurl FROM items;")
+    searchQuery = request.args.get("search")
+    if searchQuery == None or searchQuery == " ":
+        dbresponse = dbSelectCall(mysql, "SELECT heading, imgurl FROM items;")
+    else:
+        dbresponse = dbSelectCall(mysql, f"SELECT heading, imgurl FROM items WHERE heading LIKE '%{searchQuery}%';")
     if "username" in session:
         return render_template("browse.html", items=dbresponse, loggedIn=True)
     else:
