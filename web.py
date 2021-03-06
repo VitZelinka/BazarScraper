@@ -15,8 +15,8 @@ app.config['MYSQL_DB'] = 'bazarscraper'
 
 mysql = MySQL(app)
 
-@app.route('/')
-@app.route('/home')
+@app.route("/")
+@app.route("/home")
 def index():
     #print(flask.request.remote_addr)
     if "username" in session:
@@ -33,11 +33,13 @@ def auth():
         if "loginForm" in request.form:
             name = request.form["user"]
             passw = request.form["pass"]
-            dbresponse = dbSelectCall(mysql, f"SELECT password FROM users WHERE username='{name}';")
+            dbresponse = dbSelectCall(mysql, f"SELECT password, userid, username FROM users WHERE username='{name}';")
             if len(dbresponse) == 1:
                 respo = check_password_hash(dbresponse[0][0], passw)
                 if respo == True:
-                    session["username"] = name
+                    session["username"] = dbresponse[0][2]
+                    session["userId"] = dbresponse[0][1]
+                    print(session["userId"])
                     return redirect(url_for('profile'))
                 else:
                     return render_template("login.html", authFailed=True)
@@ -72,9 +74,9 @@ def data():
 def browse():
     searchQuery = request.args.get("search")
     if searchQuery == None or searchQuery == " ":
-        dbresponse = dbSelectCall(mysql, "SELECT heading, imgurl FROM items;")
+        dbresponse = dbSelectCall(mysql, "SELECT heading, imgurl, itemid FROM items;")
     else:
-        dbresponse = dbSelectCall(mysql, f"SELECT heading, imgurl FROM items WHERE heading LIKE '%{searchQuery}%';")
+        dbresponse = dbSelectCall(mysql, f"SELECT heading, imgurl, itemid FROM items WHERE heading LIKE '%{searchQuery}%';")
     if "username" in session:
         return render_template("browse.html", items=dbresponse, loggedIn=True)
     else:
@@ -86,6 +88,8 @@ def profile():
     return render_template("profile.html", username = session["username"])
 
 
+#-----------------------------SIDE ROUTES-----------------------------#
+
 @app.route("/admin")
 def admin():
     memexd = "itemid"
@@ -94,16 +98,19 @@ def admin():
     return str(xddd[0][0])
 
 
-@app.route("/test")
-def test():
-    return render_template("test.html")
+@app.route("/addfav", methods=["POST"])
+def addFav():
+    print(session["userId"])
+    print(request.form["itemId"])
+    
+    return ""
 
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=False)
