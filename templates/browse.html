@@ -40,8 +40,16 @@
           <li>
             {{n[0]}}
             <img src={{n[1]}} height="200">
-            <p id="itemid">ITEMID: {{n[2]}}</p>
-            <button type="submit" onclick="addToFavourites({{n[2]}})">Add Fav</button>
+            <p class="itemid">ITEMID: {{n[2]}}</p>
+            {% if loggedIn == True %}
+              {% if n[2] in favItems %}
+                <button id="favAddButton{{n[2]}}" type="submit" style="display:none;" onclick="addToFavourites({{n[2]}}, this.id)">Add Fav</button>
+                <button id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove Fav</button>
+              {% else %}
+                <button id="favAddButton{{n[2]}}" type="submit" onclick="addToFavourites({{n[2]}}, this.id)">Add Fav</button>
+                <button id="favRemButton{{n[2]}}" type="submit" style="display:none;" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove Fav</button>
+              {% endif %}
+            {% endif %}
           </li>
         {% endfor %}
       </ul>

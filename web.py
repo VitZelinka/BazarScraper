@@ -74,13 +74,20 @@ def data():
 def browse():
     searchQuery = request.args.get("search")
     if searchQuery == None or searchQuery == " ":
-        dbresponse = dbSelectCall(mysql, "SELECT heading, imgurl, itemid FROM items;")
+        dbresponseItems = dbSelectCall(mysql, "SELECT heading, imgurl, itemid FROM items;")
     else:
-        dbresponse = dbSelectCall(mysql, f"SELECT heading, imgurl, itemid FROM items WHERE heading LIKE '%{searchQuery}%';")
+        dbresponseItems = dbSelectCall(mysql, f"SELECT heading, imgurl, itemid FROM items WHERE heading LIKE '%{searchQuery}%';")
+        #SELECT items.heading, items.imgurl, items.itemid 
     if "username" in session:
-        return render_template("browse.html", items=dbresponse, loggedIn=True)
+        userId = session["userId"]
+        dbresponse = dbSelectCall(mysql, f"SELECT itemid FROM favourites WHERE userid = {userId}")
+        favItems = []
+        for i in dbresponse:
+            favItems.append(i[0])
+        print(favItems)
+        return render_template("browse.html", items=dbresponseItems, loggedIn=True, favItems=favItems)
     else:
-        return render_template("browse.html", items=dbresponse, loggedIn=False)
+        return render_template("browse.html", items=dbresponseItems, loggedIn=False)
 
 
 @app.route("/profile")
@@ -100,16 +107,36 @@ def admin():
 
 @app.route("/addfav", methods=["POST"])
 def addFav():
-    print(session["userId"])
-    print(request.form["itemId"])
-    
+    userId = session["userId"]
+    itemId = request.form["itemId"]
+    cur = mysql.connection.cursor()
+    cur.execute(f"INSERT INTO favourites (userId, itemId) VALUES ('{userId}', '{itemId}');")
+    mysql.connection.commit()
+    cur.close()
+    return ""
+
+
+@app.route("/remfav", methods=["POST"])
+def remFav():
+    userId = session["userId"]
+    itemId = request.form["itemId"]
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE FROM favourites WHERE userid = {userId} AND itemid = {itemId};")
+    mysql.connection.commit()
+    cur.close()
     return ""
 
 
 @app.route("/logout")
 def logout():
     session.pop('username', None)
+    session.pop('userId', None)
     return redirect(url_for('index'))
+
+
+@app.route("/test")
+def test():
+    pass
 
 
 if __name__ == "__main__":
