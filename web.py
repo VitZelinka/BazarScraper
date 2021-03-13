@@ -1,5 +1,5 @@
 from sys import flags
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for, abort
 import flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -64,20 +64,28 @@ def auth():
     return render_template("login.html")
 
 
-@app.route('/data')
-def data():
-    # here we want to get the value of user (i.e. ?user=some-value)
-    user = request.args.get('user')
-
-
 @app.route("/browse")
 def browse():
     searchQuery = request.args.get("search")
+    pageQuery = request.args.get("page")
+    itemsPerPage = 3
+
+    try:
+        pageQuery = int(pageQuery)
+        if pageQuery < 1:
+            pageQuery = 1
+    except:
+        pageQuery = 1
+
     if searchQuery == None or searchQuery == " ":
-        dbresponseItems = dbSelectCall(mysql, "SELECT heading, imgurl, itemid FROM items;")
+        dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items 
+            LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
+        pageData = ["", pageQuery]
     else:
-        dbresponseItems = dbSelectCall(mysql, f"SELECT heading, imgurl, itemid FROM items WHERE heading LIKE '%{searchQuery}%';")
-        #SELECT items.heading, items.imgurl, items.itemid 
+        dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items
+            WHERE heading LIKE '%{searchQuery}%' LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
+        pageData = [searchQuery, pageQuery]
+
     if "username" in session:
         userId = session["userId"]
         dbresponse = dbSelectCall(mysql, f"SELECT itemid FROM favourites WHERE userid = {userId}")
@@ -85,9 +93,9 @@ def browse():
         for i in dbresponse:
             favItems.append(i[0])
         print(favItems)
-        return render_template("browse.html", items=dbresponseItems, loggedIn=True, favItems=favItems)
+        return render_template("browse.html", items=dbresponseItems, loggedIn=True, favItems=favItems, pageData=pageData)
     else:
-        return render_template("browse.html", items=dbresponseItems, loggedIn=False)
+        return render_template("browse.html", items=dbresponseItems, loggedIn=False, pageData=pageData)
 
 
 @app.route("/profile")
@@ -99,10 +107,10 @@ def profile():
 
 @app.route("/admin")
 def admin():
-    memexd = "itemid"
-    xddd = dbSelectCall(mysql, f"SELECT {memexd} FROM items;")
-    print(xddd[0][0])
-    return str(xddd[0][0])
+    if "username" in session and session["username"] == "admin":
+        return "admin"
+    else:
+        abort(404)
 
 
 @app.route("/addfav", methods=["POST"])

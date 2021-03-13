@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
-    <script src="static/AddToFavScript.js"></script>
+    <script src="static/FavouriteScript.js"></script>
   </head>
   <body>
     <div class="top-navbar">
@@ -54,5 +54,20 @@
         {% endfor %}
       </ul>
     </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    {% if pageData[1] == 1 %}
+      <span> {{pageData[1]}} </span>
+      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}">Next</a>
+    {% elif items|length != 0 %}
+      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}">Prev</a>
+      <span> {{pageData[1]}} </span>
+      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}">Next</a>
+    {% else %}
+      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}">Prev</a>
+      <span> {{pageData[1]}} </span>
+    {% endif %}
   </body>
 </html>
