@@ -68,7 +68,9 @@ def auth():
 def browse():
     searchQuery = request.args.get("search")
     pageQuery = request.args.get("page")
-    itemsPerPage = 3
+    sortQuery = request.args.get("sort")
+    bazarQuery = request.args.get("bazar")
+    itemsPerPage = 16
 
     try:
         pageQuery = int(pageQuery)
@@ -77,14 +79,44 @@ def browse():
     except:
         pageQuery = 1
 
-    if searchQuery == None or searchQuery == " ":
-        dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items 
-            LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
-        pageData = ["", pageQuery]
+    if sortQuery == "newest" or sortQuery == "" or sortQuery == None:
+        sortCond = "dateadded DESC"
+    elif sortQuery == "oldest":
+        sortCond = "dateadded ASC"
+    elif sortQuery == "alphasc":
+        sortCond = "heading ASC"
     else:
-        dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items
-            WHERE heading LIKE '%{searchQuery}%' LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
-        pageData = [searchQuery, pageQuery]
+        sortCond = "heading DESC"
+    
+    if bazarQuery is None:
+        bazarQuery = "any"
+
+    if searchQuery == None or searchQuery == "":
+        if bazarQuery != "any":
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items 
+                WHERE bazar = '{bazarQuery}' ORDER BY {sortCond} 
+                LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
+            dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
+                WHERE bazar = '{bazarQuery}';""")
+        else:
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items 
+                ORDER BY {sortCond} LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
+            dbresponseItemCount = dbSelectCall(mysql, "SELECT COUNT(*) FROM items;")
+        pageData = ["", pageQuery, dbresponseItemCount[0][0], itemsPerPage]
+    else:
+        if bazarQuery != "any":
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items
+                WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}' ORDER BY {sortCond} 
+                LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
+            dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
+                WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}';""")
+        else:
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items
+                WHERE heading LIKE '%{searchQuery}%' ORDER BY {sortCond} 
+                LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
+            dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
+                WHERE heading LIKE '%{searchQuery}%';""")
+        pageData = [searchQuery, pageQuery, dbresponseItemCount[0][0], itemsPerPage]
 
     if "username" in session:
         userId = session["userId"]
@@ -92,7 +124,6 @@ def browse():
         favItems = []
         for i in dbresponse:
             favItems.append(i[0])
-        print(favItems)
         return render_template("browse.html", items=dbresponseItems, loggedIn=True, favItems=favItems, pageData=pageData)
     else:
         return render_template("browse.html", items=dbresponseItems, loggedIn=False, pageData=pageData)
