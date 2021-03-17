@@ -131,7 +131,13 @@ def browse():
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.html", username = session["username"])
+    if "username" in session:
+        username = session["username"]
+        userId = session["userId"]
+        dbresponse = dbSelectCall(mysql, f"""SELECT items.heading, items.imgurl, items.itemid 
+            FROM items INNER JOIN favourites ON items.itemid=favourites.itemid WHERE userid={userId};""")
+        return render_template("profile.html", items=dbresponse, username=username, loggedIn=True)
+    return redirect(url_for('auth'))
 
 
 #-----------------------------SIDE ROUTES-----------------------------#
