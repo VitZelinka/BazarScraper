@@ -70,7 +70,7 @@ def browse():
     pageQuery = request.args.get("page")
     sortQuery = request.args.get("sort")
     bazarQuery = request.args.get("bazar")
-    itemsPerPage = 16
+    itemsPerPage = 15
 
     try:
         pageQuery = int(pageQuery)
@@ -102,7 +102,7 @@ def browse():
             dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items 
                 ORDER BY {sortCond} LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, "SELECT COUNT(*) FROM items;")
-        pageData = ["", pageQuery, dbresponseItemCount[0][0], itemsPerPage]
+        pageData = ["", pageQuery, dbresponseItemCount[0][0], itemsPerPage,  sortQuery, bazarQuery]
     else:
         if bazarQuery != "any":
             dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items
@@ -116,7 +116,7 @@ def browse():
                 LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
                 WHERE heading LIKE '%{searchQuery}%';""")
-        pageData = [searchQuery, pageQuery, dbresponseItemCount[0][0], itemsPerPage]
+        pageData = [searchQuery, pageQuery, dbresponseItemCount[0][0], itemsPerPage, sortQuery, bazarQuery]
 
     if "username" in session:
         userId = session["userId"]
@@ -145,7 +145,9 @@ def profile():
 @app.route("/admin")
 def admin():
     if "username" in session and session["username"] == "admin":
-        return "admin"
+        dbresponseItems = dbSelectCall(mysql, "SELECT heading, itemid, bazar, dateadded FROM items;")
+        dbresponseUsers = dbSelectCall(mysql, "SELECT userid, username FROM users;")
+        return render_template("admin.html")
     else:
         abort(404)
 
