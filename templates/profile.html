@@ -4,11 +4,11 @@
    <meta charset="UTF-8">
    <title>Profile</title>
    <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
-   <script src="static/FavouriteScript.js"></script>
+   <script src="static/BrowseScripts.js"></script>
   </head>
   <body>
     <div class="top-navbar">
-      <img class="logo" src="logo_white.png" onclick="location.href='/home'">
+      <img class="logo" src="static/placeholderlogo.png" onclick="location.href='/home'">
       <ul class="top-navbar-list">
         <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
         <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
@@ -19,25 +19,31 @@
         {% endif %}
       </ul>
     </div>
+    <div class="profile-info-container">
+      <div style="display: flex; background-color: #0E4D92; border-radius: 20px;">
+        <h2 style="padding: 0px 20px;">Username: {{username}}</h2>
+        <div style="display: flex; justify-content: center; align-items: center;" >
+          <button class="generic-button" onclick="location.href='/logout'">Logout</button>
+        </div>
+      </div>
+    </div>
     <br>
     <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    {{username}}
-    <br>
-    <button onclick="location.href='/logout'">LOGOUT</button>
-    <br>
-    <br>
-    <div>
+    <div class="list-div">
       <ul>
         {% for n in items %}
-          <li>
-            {{n[0]}}
-            <img src={{n[1]}} height="200">
-            <p class="itemid">ITEMID: {{n[2]}}</p>
-            <button id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavouritesProfile({{n[2]}}, this)">Remove Fav</button>
+          <li class="list-item" id="{{n[2]}}">
+            <img src={{n[1]}} class="item-image">
+            <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
+              <h4 style="overflow-wrap: break-word; width: 480px;">{{n[0]}}</h4>
+              <div style="display: flex; justify-content: flex-start;">
+                <p class="itemid">ITEMID: {{n[2]}}</p>
+                <p>Bazar: {{n[4]}}</p>
+              </div>
+              <div>
+                <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavouritesProfile({{n[2]}}, this)">Remove from favourites</button>
+              </div>
+            </div>
           </li>
         {% endfor %}
       </ul>

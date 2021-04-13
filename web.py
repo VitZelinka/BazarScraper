@@ -3,6 +3,7 @@ from flask import Flask, request, render_template, session, redirect, url_for, a
 import flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
+from werkzeug.utils import escape
 from functions import dbSelectCall
 
 app = Flask(__name__)
@@ -60,7 +61,7 @@ def auth():
                 session["username"] = name
                 return redirect(url_for('profile'))
             else:
-                print("Username already exists.") #unfinished
+                print("Username already exists.") #-------------------------------------------------------------unfinished
     return render_template("login.html")
 
 
@@ -93,25 +94,25 @@ def browse():
 
     if searchQuery == None or searchQuery == "":
         if bazarQuery != "any":
-            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items 
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items 
                 WHERE bazar = '{bazarQuery}' ORDER BY {sortCond} 
                 LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
                 WHERE bazar = '{bazarQuery}';""")
         else:
-            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items 
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items 
                 ORDER BY {sortCond} LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, "SELECT COUNT(*) FROM items;")
         pageData = ["", pageQuery, dbresponseItemCount[0][0], itemsPerPage,  sortQuery, bazarQuery]
     else:
         if bazarQuery != "any":
-            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items
                 WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}' ORDER BY {sortCond} 
                 LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
                 WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}';""")
         else:
-            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid FROM items
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items
                 WHERE heading LIKE '%{searchQuery}%' ORDER BY {sortCond} 
                 LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
@@ -134,7 +135,7 @@ def profile():
     if "username" in session:
         username = session["username"]
         userId = session["userId"]
-        dbresponse = dbSelectCall(mysql, f"""SELECT items.heading, items.imgurl, items.itemid 
+        dbresponse = dbSelectCall(mysql, f"""SELECT items.heading, items.imgurl, items.itemid, items.url, items.bazar 
             FROM items INNER JOIN favourites ON items.itemid=favourites.itemid WHERE userid={userId};""")
         return render_template("profile.html", items=dbresponse, username=username, loggedIn=True)
     return redirect(url_for('auth'))
@@ -144,34 +145,59 @@ def profile():
 
 @app.route("/admin")
 def admin():
-    if "username" in session and session["username"] == "admin":
-        dbresponseItems = dbSelectCall(mysql, "SELECT heading, itemid, bazar, dateadded FROM items;")
-        dbresponseUsers = dbSelectCall(mysql, "SELECT userid, username FROM users;")
-        return render_template("admin.html")
+    if "username" in session:
+        userId = session["userId"]
+        dbresponse = dbSelectCall(mysql, f"SELECT EXISTS(SELECT * FROM administrators WHERE userId = '{userId}');")[0][0]
+        if dbresponse == 1:
+            dbresponseItems = dbSelectCall(mysql, "SELECT heading, itemid, bazar, dateadded FROM items;")
+            dbresponseUsers = dbSelectCall(mysql, "SELECT userid, username FROM users;")
+            return render_template("admin.html")
+        else:
+            abort(404)
     else:
         abort(404)
 
 
 @app.route("/addfav", methods=["POST"])
 def addFav():
-    userId = session["userId"]
-    itemId = request.form["itemId"]
-    cur = mysql.connection.cursor()
-    cur.execute(f"INSERT INTO favourites (userId, itemId) VALUES ('{userId}', '{itemId}');")
-    mysql.connection.commit()
-    cur.close()
-    return ""
+    if "username" in session:
+        userId = session["userId"]
+        itemId = request.form["itemId"]
+        cur = mysql.connection.cursor()
+        cur.execute(f"INSERT INTO favourites (userId, itemId) VALUES ('{userId}', '{itemId}');")
+        mysql.connection.commit()
+        cur.close()
+        return ""
+    else:
+        abort(404)
 
 
 @app.route("/remfav", methods=["POST"])
 def remFav():
-    userId = session["userId"]
-    itemId = request.form["itemId"]
-    cur = mysql.connection.cursor()
-    cur.execute(f"DELETE FROM favourites WHERE userid = {userId} AND itemid = {itemId};")
-    mysql.connection.commit()
-    cur.close()
-    return ""
+    if "username" in session:
+        userId = session["userId"]
+        itemId = request.form["itemId"]
+        cur = mysql.connection.cursor()
+        cur.execute(f"DELETE FROM favourites WHERE userid = {userId} AND itemid = {itemId};")
+        mysql.connection.commit()
+        cur.close()
+        return ""
+    else:
+        abort(404)
+
+
+@app.route("/report", methods=["POST"])
+def report():
+    if "username" in session:
+        userId = session["userId"]
+        itemId = request.form["itemId"]
+        cur = mysql.connection.cursor()
+        cur.execute(f"INSERT INTO reports (userId, itemId) VALUES ('{userId}', '{itemId}');")
+        mysql.connection.commit()
+        cur.close()
+        return ""
+    else:
+        abort(404)
 
 
 @app.route("/logout")
@@ -187,4 +213,4 @@ def test():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Hub</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
+    <script src="static/AdminScripts.js"></script>
+  </head>
+  <body class="page-admin">
+    <div class="top-navbar-admin">
+      <ul class="top-navbar-list-admin">
+        <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/logout'">Logout</button></li>
+      </ul>
+    </div>
+    <div class="content" style="padding-top: 40px;">
+      <h1>Admin Hub</h1>
+    </div>
+    <div style="width: 100%;">
+      <ul class="top-navbar-list-admin" style="justify-content: center;">
+        <li><button class="top-navbar-button" onclick="showItems()">Items</button></li>
+        <li><button class="top-navbar-button" onclick="showUsers()">Users</button></li>
+        <li><button class="top-navbar-button" onclick="showReports()">Reports</button></li>
+        <li><button class="top-navbar-button" onclick="showLogs()">Logs</button></li>
+      </ul>
+    </div>
+    <div id="AdminItemsList">
+        <ul>
+            <li>XD1item</li>
+            <li>XD2it</li>
+        </ul>
+    </div>
+    <div id="AdminUsersList" style="display: none;">
+        <ul>
+            <li>XD1use</li>
+            <li>XD2usr</li>
+        </ul>
+    </div>
+    <div id="AdminReportsList" style="display: none;">
+        <ul>
+            <li>XD1repo</li>
+            <li>XD2repor</li>
+        </ul>
+    </div>
+    <div id="AdminLogsList" style="display: none;">
+        <ul>
+            <li>XD1logs</li>
+            <li>XD2logs</li>
+        </ul>
+    </div>
+  </body>
+</html>

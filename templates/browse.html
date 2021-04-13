@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
-    <script src="static/FavouriteScript.js"></script>
+    <script src="static/BrowseScripts.js"></script>
   </head>
   <body>
     <div class="top-navbar">
-      <img class="logo" src="logo_white.png" onclick="location.href='/home'">
+      <img class="logo" src="static/placeholderlogo.png" onclick="location.href='/home'">
       <ul class="top-navbar-list">
         <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
         <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
@@ -20,47 +20,56 @@
         {% endif %}
       </ul>
     </div>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <div>
-      <form method="GET">
-        <input type="text" placeholder="Search" class="inputField" name="search">
-        <br>
-        <select name="sort">
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-          <option value="alphasc">A-Z</option>
-          <option value="alphdes">Z-A</option>
-        </select>
-        <select name="bazar">
-          <option value="any">Any</option>
-          <option value="sbazar">Sbazar</option>
-          <option value="bazos">Bazos</option>
-        </select>
-        <button class="submitButton" type="submit">Search</button>
-      </form>
+    <div class="search-div">
+      <div>
+        <form method="GET">
+          <span><input class="search-bar" type="text" placeholder="Search" class="inputField" name="search"></span><span><button class="submitButton search-button" type="submit">Search</button></span>
+          <div style="display: flex; justify-content: flex-start; color: white;">
+            <div style="margin: 10px 30px 10px 45px;">
+              Sort by:
+              <select class="generic-selector" name="sort">
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="alphasc">A-Z</option>
+                <option value="alphdes">Z-A</option>
+              </select>
+            </div>
+            <div style="margin: 10px 0px;">
+              From:
+              <select class="generic-selector" name="bazar">
+                <option value="any">Any</option>
+                <option value="sbazar">Sbazar</option>
+                <option value="bazos">Bazos</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-    <div>
+    <div class="list-div">
       <ul>
         {% for n in items %}
-          <li>
-            {{n[0]}}
-            <img src={{n[1]}} height="200">
-            <p class="itemid">ITEMID: {{n[2]}}</p>
-            {% if loggedIn == True %}
-              {% if n[2] in favItems %}
-                <button id="favAddButton{{n[2]}}" type="submit" style="display:none;" onclick="addToFavourites({{n[2]}}, this.id)">Add Fav</button>
-                <button id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove Fav</button>
-              {% else %}
-                <button id="favAddButton{{n[2]}}" type="submit" onclick="addToFavourites({{n[2]}}, this.id)">Add Fav</button>
-                <button id="favRemButton{{n[2]}}" type="submit" style="display:none;" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove Fav</button>
-              {% endif %}
-            {% endif %}
+          <li class="list-item">
+            <img src={{n[1]}} class="item-image">
+            <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
+              <h4 style="overflow-wrap: break-word; width: 480px;">{{n[0]}}</h4>
+              <div style="display: flex; justify-content: flex-start;">
+                <p class="itemid">ITEMID: {{n[2]}}</p>
+                <p>Bazar: {{n[4]}}</p>
+              </div>
+              <div>
+                {% if loggedIn == True %}
+                  {% if n[2] in favItems %}
+                    <button class="generic-button" id="favAddButton{{n[2]}}" type="submit" style="display:none;" onclick="addToFavourites({{n[2]}}, this.id)">Add to favourites</button>
+                    <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove from favourites</button>
+                  {% else %}
+                    <button class="generic-button" id="favAddButton{{n[2]}}" type="submit" onclick="addToFavourites({{n[2]}}, this.id)">Add to favourites</button>
+                    <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" style="display:none;" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove from favourites</button>
+                  {% endif %}
+                  <button class="generic-button" style="margin-left: 15px;" type="submit" onclick="openReportPopup({{n[2]}})">Report</button>
+                {% endif %}
+              </div>
+            </div>
           </li>
         {% endfor %}
       </ul>
@@ -82,5 +91,13 @@
       <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Prev</a>
       <span> {{pageData[1]}} </span>
     {% endif %}
+    <div class="report-popup" id="report-popup-window">
+      <div class="report-popup-content">
+        <h2>Report Item</h2>
+        <p>Are you sure you want to report this item?</p>
+        <button class="generic-button" style="margin-right: 5px;" onclick="closeReportPopup()">Cancel</button>
+        <button class="generic-button" style="margin-left: 5px;" onclick="reportItem()">Report</button>
+      </div>
+    </div>
   </body>
 </html>
