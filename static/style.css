@@ -239,11 +239,84 @@ a {
 }
 
 .itemid {
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .profile-info-container {
   display: flex;
   justify-content: center;
   margin-top: 100px;
+}
+
+.page-control-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0px 20px 0px;
+}
+
+.page-control-container a {
+  color: white;
+  background-color: #008CBA;
+  margin: 0px 10px;
+  padding: 8px 15px;
+  border-radius: 20px;
+  text-decoration-line: none;
+}
+
+.page-control-container span {
+  color: white;
+  font-size: 20px;
+}
+
+.inputField {
+  background-color: white;
+  border: none;
+  padding: 0px 15px;
+  border-radius: 20px;
+  height: 31px;
+}
+
+.auth-input-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 250px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #0E4D92;
+  width: 260px;
+  border-radius: 0px 0px 20px 20px;
+  padding: 15px 0px;
+}
+
+.auth-button-container {
+  width: 200px;
+  display: flex;
+  justify-content: space-evenly;
+  background-color: #008CBA;
+  padding: 15px 30px;
+  border-radius: 20px 20px 0px 0px;
+}
+
+#register-form {
+  display: none;
+}
+
+.auth-message {
+  display: flex;
+  justify-content: center;
+  color: white;
+}
+
+.admin-list-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }

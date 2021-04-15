@@ -20,16 +20,6 @@ function removeFromFavourites(itemID, buttonID) {
     secondButton.style.display = "inline";
 }
 
-function removeFromFavouritesProfile(itemID) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/remfav');
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.send("itemId="+itemID);
-    var thisListItem = document.getElementById(itemID);
-    thisListItem.style.display = "none";
-}
-
-
 var globalItemID = 0
 function openReportPopup(itemID) {
     var window = document.getElementById("report-popup-window")

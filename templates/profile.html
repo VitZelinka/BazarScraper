@@ -2,9 +2,10 @@
 <html lang="cs">
   <head>
    <meta charset="UTF-8">
+   <meta name="viewport" content="width=1024">
    <title>Profile</title>
    <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
-   <script src="static/BrowseScripts.js"></script>
+   <script src="static/ProfileScripts.js"></script>
   </head>
   <body>
     <div class="top-navbar">
@@ -21,16 +22,16 @@
     </div>
     <div class="profile-info-container">
       <div style="display: flex; background-color: #0E4D92; border-radius: 20px;">
-        <h2 style="padding: 0px 20px;">Username: {{username}}</h2>
+        <h2 style="padding: 0px 20px; color: white;">Username: {{username}}</h2>
         <div style="display: flex; justify-content: center; align-items: center;" >
-          <button class="generic-button" onclick="location.href='/logout'">Logout</button>
+          <button class="generic-button" style="margin-right: 20px;" onclick="location.href='/logout'">Logout</button>
         </div>
       </div>
     </div>
     <br>
     <br>
     <div class="list-div">
-      <ul>
+      <ul style="padding: 0px">
         {% for n in items %}
           <li class="list-item" id="{{n[2]}}">
             <img src={{n[1]}} class="item-image">

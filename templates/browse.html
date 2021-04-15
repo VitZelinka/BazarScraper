@@ -2,7 +2,7 @@
 <html lang="cs">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>Browse</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
     <script src="static/BrowseScripts.js"></script>
@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="list-div">
-      <ul>
+      <ul style="padding: 0px">
         {% for n in items %}
           <li class="list-item">
             <img src={{n[1]}} class="item-image">
@@ -74,23 +74,21 @@
         {% endfor %}
       </ul>
     </div>
-    <br>
-    <br>
-    <br>
-    <br>
-    {% if pageData[1] == 1 and (pageData[2]/pageData[3]) > 1 %}
-      <span> {{pageData[1]}} </span>
-      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Next</a>
-    {% elif pageData[2]/(pageData[3]*pageData[1]) > 1 %}
-      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Prev</a>
-      <span> {{pageData[1]}} </span>
-      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Next</a>
-    {% elif pageData[1] == 1 %}
-      <span> {{pageData[1]}} </span>
-    {% else %}
-      <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Prev</a>
-      <span> {{pageData[1]}} </span>
-    {% endif %}
+    <div class="page-control-container">
+      {% if pageData[1] == 1 and (pageData[2]/pageData[3]) > 1 %}
+        <span> {{pageData[1]}} </span>
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Next</a>
+      {% elif pageData[2]/(pageData[3]*pageData[1]) > 1 %}
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Prev</a>
+        <span> {{pageData[1]}} </span>
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Next</a>
+      {% elif pageData[1] == 1 %}
+        <span> {{pageData[1]}} </span>
+      {% else %}
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Prev</a>
+        <span> {{pageData[1]}} </span>
+      {% endif %}
+    </div>
     <div class="report-popup" id="report-popup-window">
       <div class="report-popup-content">
         <h2>Report Item</h2>

@@ -2,7 +2,7 @@
 <html lang="cs">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>Admin Hub</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
     <script src="static/AdminScripts.js"></script>
@@ -25,17 +25,49 @@
         <li><button class="top-navbar-button" onclick="showLogs()">Logs</button></li>
       </ul>
     </div>
-    <div id="AdminItemsList">
-        <ul>
-            <li>XD1item</li>
-            <li>XD2it</li>
-        </ul>
+    <div id="AdminItemsList" class="admin-list-container">
+      <ul style="padding: 0px">
+        {% for n in items %}
+          <li class="list-item" id="{{n[2]}}">
+            <img src={{n[1]}} class="item-image">
+            <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
+              <h4 style="overflow-wrap: break-word; width: 480px;">{{n[0]}}</h4>
+              <div style="display: flex; justify-content: flex-start;">
+                <p class="itemid">ITEMID: {{n[2]}}</p>
+                <p style="margin-right: 10px;">Bazar: {{n[4]}}</p>
+                <p>Date: {{n[5]}}</p>
+              </div>
+              <div>
+                {% if n[2] in unpItems %}
+                  <button class="generic-button" id="unpublishButton{{n[2]}}" type="submit" style="display: none;" onclick="unpublishItem({{n[2]}}, this.id)">Unpublish</button>
+                  <button class="generic-button" id="publishButton{{n[2]}}" type="submit" onclick="publishItem({{n[2]}}, this.id)">Publish</button>
+                {% else %}
+                  <button class="generic-button" id="unpublishButton{{n[2]}}" type="submit" onclick="unpublishItem({{n[2]}}, this.id)">Unpublish</button>
+                  <button class="generic-button" id="publishButton{{n[2]}}" type="submit" style="display: none;" onclick="publishItem({{n[2]}}, this.id)">Publish</button>
+                {% endif %}
+                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItem({{n[2]}}, this.id)">Remove from DB</button>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
-    <div id="AdminUsersList" style="display: none;">
-        <ul>
-            <li>XD1use</li>
-            <li>XD2usr</li>
-        </ul>
+    <div id="AdminUsersList" class="admin-list-container" style="display: none;">
+      <ul style="padding: 0px">
+        {% for n in users %}
+          <li class="list-item" style="width: 450px;">
+            <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
+              <div style="display: flex; justify-content: flex-start;">
+                <p class="itemid" style="margin-right: 10px;">Username: {{n[1]}}</p>
+                <p style="margin-right: 10px;">UserID: {{n[0]}}</p>
+              </div>
+              <div>
+                <button class="generic-button" id="removeButton{{n[0]}}" type="submit" onclick="removeUser({{n[0]}}, this)">Remove from DB</button>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
     <div id="AdminReportsList" style="display: none;">
         <ul>
