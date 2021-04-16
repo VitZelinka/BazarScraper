@@ -1,10 +1,7 @@
-import re
 from bs4 import BeautifulSoup
 import requests
 import mysql.connector
-import time
 
-from requests.api import head
 
 mysql = mysql.connector.connect(
   host="192.168.0.188",
@@ -12,8 +9,6 @@ mysql = mysql.connector.connect(
   password="memicko",
   database = "bazarscraper"
 )
-cur = mysql.cursor()
-cur.close()
 
 #get list of urls - OK
 #check if urls already in DB - OK
@@ -44,30 +39,9 @@ def scrapeNewSbazarURLs():
         return newUrls
 
 
-def scrapeNewBazosURLs():
-    url1 = "https://pc.bazos.cz/?hlokalita=&humkreis=0&cenaod=0&cenado=0"
-    url2 = "https://mobil.bazos.cz/?hlokalita=&humkreis=0&cenaod=0&cenado=0"
-    r = requests.get(url1)
-    if r.status_code == 200:
-        soup = BeautifulSoup(r.text, "html.parser")
-        items = soup.find_all("li", class_="c-item c-item--uw")
-        urls = []
-        for item in items:
-            anchor = item.find("a", class_="c-item__link")
-            urls.append(anchor["href"])
-        cur = mysql.cursor()
-        newUrls = []
-        for url in urls:
-            cur.execute(f"SELECT EXISTS(SELECT * FROM items WHERE url = '{url}');")
-            dbresponse = cur.fetchall()
-            if dbresponse[0][0] == 0:
-                newUrls.append(url)
-        cur.close()
-        return newUrls
-
-
 def scrapeSbazarData(urls):
     cur = mysql.cursor()
+    numberOfUrls = 0
     for url in urls:
         r = requests.get(url)
         if r.status_code == 200:
@@ -78,15 +52,18 @@ def scrapeSbazarData(urls):
             except:
                 imgURL = "static/placeholder.png"
             heading = soup.find("h1", class_="p-uw-item__header").text
-            cur.execute(f"INSERT INTO items (url, imgurl, heading, bazar) VALUES ('{url}', '{imgURL}', '{heading}', 'sbazar');")
+            cur.execute(f"INSERT INTO items (url, imgurl, heading, bazar, public) VALUES ('{url}', '{imgURL}', '{heading}', 'sbazar', 1);")
             mysql.commit()
-            print(f"URL {url} scraped.")
+            numberOfUrls += 1
+    cur.execute(f"INSERT INTO logs (author, message) VALUES ('scraperscript', 'Scraped {numberOfUrls} URLs from sbazar.');")
+    mysql.commit()
     cur.close()
 
 
 def scrapeBazosData():
     urls = ["https://pc.bazos.cz/?hlokalita=&humkreis=0&cenaod=0&cenado=0", "https://mobil.bazos.cz/?hlokalita=&humkreis=0&cenaod=0&cenado=0"]
     urlNumber = 0
+    scrapedUrls = 0
     cur = mysql.cursor()
     for url in urls:
         r = requests.get(url)
@@ -98,7 +75,6 @@ def scrapeBazosData():
                 segment = item.find("span", class_="nadpis")
                 heading = segment.find("a").text
                 if "tren" in heading or "pozor" in heading:
-                    print(f"Skipped {heading}.")
                     continue
                 try:
                     imgURL = img["src"]
@@ -111,12 +87,22 @@ def scrapeBazosData():
                 cur.execute(f"SELECT EXISTS(SELECT * FROM items WHERE url = '{URLforDB}');")
                 dbresponse = cur.fetchall()
                 if dbresponse[0][0] == 0:
-                    cur.execute(f"INSERT INTO items (url, imgurl, heading, bazar) VALUES ('{URLforDB}', '{imgURL}', '{heading}', 'bazos');")
+                    cur.execute(f"INSERT INTO items (url, imgurl, heading, bazar, public) VALUES ('{URLforDB}', '{imgURL}', '{heading}', 'bazos', 1);")
                     mysql.commit()
-                    print(f"URL {URLforDB} scraped.")
+                    scrapedUrls += 1
         urlNumber += 1
+    cur.execute(f"INSERT INTO logs (author, message) VALUES ('scraperscript', 'Scraped {scrapedUrls} URLs from bazos.');")
+    mysql.commit()
     cur.close()
     
+def deleteOldItems():
+    cur = mysql.cursor()
+    cur.execute("DELETE FROM items WHERE dateadded < NOW() - INTERVAL 1 WEEK;")
+    cur.execute("INSERT INTO logs (author, message) VALUES ('scraperscript', 'Removed old items.');")
+    mysql.commit()
+    cur.close()
 
-#scrapeSbazarData(scrapeNewSbazarURLs())
+
+scrapeSbazarData(scrapeNewSbazarURLs())
 scrapeBazosData()
+deleteOldItems()

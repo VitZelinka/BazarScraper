@@ -320,3 +320,10 @@ a {
   display: flex;
   justify-content: center;
 }
+
+.item-link {
+  color: white;
+  font-size: 18px;
+  overflow-wrap: break-word;
+  width: 480px;
+}

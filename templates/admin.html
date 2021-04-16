@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=1024">
     <title>Admin Hub</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script src="static/AdminScripts.js"></script>
   </head>
   <body class="page-admin">
@@ -31,7 +32,7 @@
           <li class="list-item" id="{{n[2]}}">
             <img src={{n[1]}} class="item-image">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
-              <h4 style="overflow-wrap: break-word; width: 480px;">{{n[0]}}</h4>
+              <a href="{{n[3]}}" class="item-link">{{n[0]}}</a>
               <div style="display: flex; justify-content: flex-start;">
                 <p class="itemid">ITEMID: {{n[2]}}</p>
                 <p style="margin-right: 10px;">Bazar: {{n[4]}}</p>
@@ -45,7 +46,7 @@
                   <button class="generic-button" id="unpublishButton{{n[2]}}" type="submit" onclick="unpublishItem({{n[2]}}, this.id)">Unpublish</button>
                   <button class="generic-button" id="publishButton{{n[2]}}" type="submit" style="display: none;" onclick="publishItem({{n[2]}}, this.id)">Publish</button>
                 {% endif %}
-                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItem({{n[2]}}, this.id)">Remove from DB</button>
+                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItem({{n[2]}})">Remove from DB</button>
               </div>
             </div>
           </li>
@@ -55,30 +56,67 @@
     <div id="AdminUsersList" class="admin-list-container" style="display: none;">
       <ul style="padding: 0px">
         {% for n in users %}
-          <li class="list-item" style="width: 450px;">
+          <li class="list-item" style="width: 450px;" id="us{{n[0]}}">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
               <div style="display: flex; justify-content: flex-start;">
                 <p class="itemid" style="margin-right: 10px;">Username: {{n[1]}}</p>
                 <p style="margin-right: 10px;">UserID: {{n[0]}}</p>
               </div>
               <div>
-                <button class="generic-button" id="removeButton{{n[0]}}" type="submit" onclick="removeUser({{n[0]}}, this)">Remove from DB</button>
+                <button class="generic-button" id="removeButton{{n[0]}}" type="submit" onclick="removeUser({{n[0]}})">Remove from DB</button>
+                {% if n[0] in admins %}
+                  <button class="generic-button" id="RevokeAdmin{{n[0]}}" type="submit" onclick="revoke({{n[0]}}, this.id)">Revoke Admin</button>
+                  <button class="generic-button" id="GrantAdmin{{n[0]}}" style="display: none;" type="submit" onclick="grant({{n[0]}}, this.id)">Grant Admin</button>
+                {% else %}
+                  <button class="generic-button" id="GrantAdmin{{n[0]}}" type="submit" onclick="grant({{n[0]}}, this.id)">Grant Admin</button>
+                  <button class="generic-button" id="RevokeAdmin{{n[0]}}" style="display: none;" type="submit" onclick="revoke({{n[0]}}, this.id)">Revoke Admin</button>
+                {% endif %}
               </div>
             </div>
           </li>
         {% endfor %}
       </ul>
     </div>
-    <div id="AdminReportsList" style="display: none;">
-        <ul>
-            <li>XD1repo</li>
-            <li>XD2repor</li>
-        </ul>
+    <div id="AdminReportsList" class="admin-list-container" style="display: none;">
+      <ul style="padding: 0px">
+        {% for n in reports %}
+          <li class="list-item" id="rep{{n[2]}}">
+            <img src={{n[1]}} class="item-image">
+            <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
+              <a href="{{n[3]}}" class="item-link">{{n[0]}}</a>
+              <div style="display: flex; justify-content: flex-start;">
+                <p class="itemid">ITEMID: {{n[2]}}</p>
+                <p style="margin-right: 10px;">Reports: {{n[4]}}</p>
+              </div>
+              <div>
+                {% if n[2] in unpItems %}
+                  <button class="generic-button" id="unpublishButtonRep{{n[2]}}" type="submit" style="display: none;" onclick="unpublishItemRep({{n[2]}}, this.id)">Unpublish</button>
+                  <button class="generic-button" id="publishButtonRep{{n[2]}}" type="submit" onclick="publishItemRep({{n[2]}}, this.id)">Publish</button>
+                {% else %}
+                  <button class="generic-button" id="unpublishButtonRep{{n[2]}}" type="submit" onclick="unpublishItemRep({{n[2]}}, this.id)">Unpublish</button>
+                  <button class="generic-button" id="publishButtonRep{{n[2]}}" type="submit" style="display: none;" onclick="publishItemRep({{n[2]}}, this.id)">Publish</button>
+                {% endif %}
+                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItemRep({{n[2]}})">Remove from DB</button>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
-    <div id="AdminLogsList" style="display: none;">
-        <ul>
-            <li>XD1logs</li>
-            <li>XD2logs</li>
+    <div id="AdminLogsList" class="admin-list-container" style="display: none;">
+        <ul style="padding: 0px">
+          {% for n in logs %}
+            <li class="list-item">
+              <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                <p style="margin-left: 10px;">{{n[2]}}</p>
+                <div style="display: flex;">
+                  <p style="margin: 0px 10px;">LogID: {{n[0]}}</p>
+                  <p style="margin: 0px 10px;">Author: {{n[1]}}</p>
+                  <p style="margin: 0px 10px;">Date: {{n[3]}}</p>
+                </div>
+              </div>
+            </li>
+          {% endfor %}
         </ul>
     </div>
   </body>

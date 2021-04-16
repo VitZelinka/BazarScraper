@@ -1,9 +1,6 @@
-from sys import flags
 from flask import Flask, request, render_template, session, redirect, url_for, abort
-import flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
-from werkzeug.utils import escape
 from functions import dbSelectCall, dbSelectCallEsc
 
 app = Flask(__name__)
@@ -19,7 +16,6 @@ mysql = MySQL(app)
 @app.route("/")
 @app.route("/home")
 def index():
-    #print(flask.request.remote_addr)
     if "username" in session:
         return render_template("index.html", loggedIn=True)
     else:
@@ -40,6 +36,10 @@ def auth():
                 if respo == True:
                     session["username"] = dbresponse[0][2]
                     session["userId"] = dbresponse[0][1]
+                    cur = mysql.connection.cursor()
+                    cur.execute(f"INSERT INTO logs (author, message) VALUES ('User {dbresponse[0][1]}', 'Logged in.');")
+                    mysql.connection.commit()
+                    cur.close()
                     return redirect(url_for('profile'))
                 else:
                     return render_template("login.html", authResult="BadLogin")
@@ -63,6 +63,10 @@ def auth():
                 dbresponse = dbSelectCallEsc(mysql, "SELECT userid, username FROM users WHERE username=%s;", [name])
                 session["username"] = dbresponse[0][1]
                 session["userId"] = dbresponse[0][0]
+                cur = mysql.connection.cursor()
+                cur.execute(f"INSERT INTO logs (author, message) VALUES ('User {dbresponse[0][0]}', 'Registered.');")
+                mysql.connection.commit()
+                cur.close()
                 return redirect(url_for('profile'))
             else:
                 return render_template("login.html", authResult="UsernameExists")
@@ -99,29 +103,29 @@ def browse():
     if searchQuery == None or searchQuery == "":
         if bazarQuery != "any":
             dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items 
-                WHERE bazar = '{bazarQuery}' ORDER BY {sortCond} 
+                WHERE bazar = '{bazarQuery}' AND public=1 ORDER BY {sortCond} 
                 LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
-                WHERE bazar = '{bazarQuery}';""")
+                WHERE bazar = '{bazarQuery}' AND public=1;""")
         else:
-            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items 
+            dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items WHERE public=1 
                 ORDER BY {sortCond} LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
-            dbresponseItemCount = dbSelectCall(mysql, "SELECT COUNT(*) FROM items;")
+            dbresponseItemCount = dbSelectCall(mysql, "SELECT COUNT(*) FROM items WHERE public=1;")
         pageData = ["", pageQuery, dbresponseItemCount[0][0], itemsPerPage,  sortQuery, bazarQuery]
     else:
         searchQuery = searchQuery.replace("'", "")
         if bazarQuery != "any":
             dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items
-                WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}' ORDER BY {sortCond} 
+                WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}' AND public=1 ORDER BY {sortCond} 
                 LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
-                WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}';""")
+                WHERE heading LIKE '%{searchQuery}%' AND bazar = '{bazarQuery}' AND public=1;""")
         else:
             dbresponseItems = dbSelectCall(mysql, f"""SELECT heading, imgurl, itemid, url, bazar FROM items
-                WHERE heading LIKE '%{searchQuery}%' ORDER BY {sortCond} 
+                WHERE heading LIKE '%{searchQuery}%'  AND public=1 ORDER BY {sortCond} 
                 LIMIT {(pageQuery-1)*itemsPerPage}, {itemsPerPage};""")
             dbresponseItemCount = dbSelectCall(mysql, f"""SELECT COUNT(*) FROM items 
-                WHERE heading LIKE '%{searchQuery}%';""")
+                WHERE heading LIKE '%{searchQuery}%' AND public=1;""")
         pageData = [searchQuery, pageQuery, dbresponseItemCount[0][0], itemsPerPage, sortQuery, bazarQuery]
 
     if "username" in session:
@@ -155,14 +159,26 @@ def admin():
         dbresponse = dbSelectCallEsc(mysql, "SELECT EXISTS(SELECT * FROM administrators WHERE userId = %s);", [userId])[0][0]
         if dbresponse == 1:
             dbresponseItems = dbSelectCall(mysql, "SELECT heading, imgurl, itemid, url, bazar, dateadded FROM items ORDER BY dateadded DESC;")
-            dbresponseUnpItems = dbSelectCall(mysql, "SELECT itemid FROM items WHERE public = 0")
+            dbresponseUnpItems = dbSelectCall(mysql, "SELECT itemid FROM items WHERE public = 0;")
             dbresponseUsers = dbSelectCall(mysql, "SELECT userid, username FROM users;")
-            return render_template("admin.html", items=dbresponseItems, unpItems=dbresponseUnpItems, users=dbresponseUsers)
+            dbresponseReports = dbSelectCall(mysql, """SELECT items.heading, items.imgurl, items.itemid, items.url, COUNT(reports.itemid) AS reports 
+                FROM items LEFT JOIN reports ON items.itemid = reports.itemid GROUP BY items.itemid HAVING reports > 0 ORDER BY reports DESC;""")
+            dbresponseAdmins = dbSelectCall(mysql, "SELECT userid FROM administrators;")
+            dbresponseLogs = dbSelectCall(mysql, "SELECT logid, author, message, datecreated FROM logs ORDER BY datecreated DESC;")
+            unpItems = []
+            for i in dbresponseUnpItems:
+                unpItems.append(i[0])
+            admins = []
+            for i in dbresponseAdmins:
+                admins.append(i[0])
+            return render_template("admin.html", items=dbresponseItems, unpItems=unpItems,
+                users=dbresponseUsers, reports=dbresponseReports, admins=admins, logs=dbresponseLogs)
         else:
             abort(404)
     else:
         abort(404)
 
+#-----------------------------END POINTS-----------------------------#
 
 @app.route("/addfav", methods=["POST"])
 def addFav():
@@ -171,6 +187,7 @@ def addFav():
         itemId = request.form["itemId"]
         cur = mysql.connection.cursor()
         cur.execute(f"INSERT INTO favourites (userId, itemId) VALUES ('{userId}', '{itemId}');")
+        cur.execute(f"INSERT INTO logs (author, message) VALUES ('User {userId}', 'Added item {itemId} to favourites.');")
         mysql.connection.commit()
         cur.close()
         return ""
@@ -185,6 +202,7 @@ def remFav():
         itemId = request.form["itemId"]
         cur = mysql.connection.cursor()
         cur.execute(f"DELETE FROM favourites WHERE userid = {userId} AND itemid = {itemId};")
+        cur.execute(f"INSERT INTO logs (author, message) VALUES ('User {userId}', 'Removed item {itemId} from favourites.');")
         mysql.connection.commit()
         cur.close()
         return ""
@@ -199,6 +217,7 @@ def report():
         itemId = request.form["itemId"]
         cur = mysql.connection.cursor()
         cur.execute(f"INSERT INTO reports (userId, itemId) VALUES ('{userId}', '{itemId}');")
+        cur.execute(f"INSERT INTO logs (author, message) VALUES ('User {userId}', 'Reported item {itemId}.');")
         mysql.connection.commit()
         cur.close()
         return ""
@@ -215,6 +234,7 @@ def unpublish():
             itemId = request.form["itemId"]
             cur = mysql.connection.cursor()
             cur.execute("UPDATE items SET public = 0 WHERE itemid = %s;", [itemId])
+            cur.execute(f"INSERT INTO logs (author, message) VALUES ('Admin {userId}', 'Unpublished item {itemId}.');")
             mysql.connection.commit()
             cur.close()
             return ""
@@ -233,6 +253,7 @@ def publish():
             itemId = request.form["itemId"]
             cur = mysql.connection.cursor()
             cur.execute("UPDATE items SET public = 1 WHERE itemid = %s;", [itemId])
+            cur.execute(f"INSERT INTO logs (author, message) VALUES ('Admin {userId}', 'Published item {itemId}.');")
             mysql.connection.commit()
             cur.close()
             return ""
@@ -253,6 +274,66 @@ def deleteitem():
             cur.execute("DELETE FROM items WHERE itemid = %s;", [itemId])
             cur.execute("DELETE FROM favourites WHERE itemid = %s;", [itemId])
             cur.execute("DELETE FROM reports WHERE itemid = %s;", [itemId])
+            cur.execute(f"INSERT INTO logs (author, message) VALUES ('Admin {userId}', 'Deleted item {itemId}.');")
+            mysql.connection.commit()
+            cur.close()
+            return ""
+        else:
+            abort(404)
+    else:
+        abort(404)
+
+
+@app.route("/deleteuser", methods=["POST"])
+def deleteuser():
+    if "username" in session:
+        userId = session["userId"]
+        dbresponse = dbSelectCallEsc(mysql, "SELECT EXISTS(SELECT * FROM administrators WHERE userId = %s);", [userId])[0][0]
+        if dbresponse == 1:
+            userIdToDel = request.form["userId"]
+            cur = mysql.connection.cursor()
+            cur.execute("DELETE FROM users WHERE userid = %s;", [userIdToDel])
+            cur.execute("DELETE FROM favourites WHERE userid = %s;", [userIdToDel])
+            cur.execute("DELETE FROM administrators WHERE userid = %s;", [userIdToDel])
+            cur.execute(f"INSERT INTO logs (author, message) VALUES ('Admin {userId}', 'Deleted user {userIdToDel}.');")
+            mysql.connection.commit()
+            cur.close()
+            return ""
+        else:
+            abort(404)
+    else:
+        abort(404)
+
+
+@app.route("/grant", methods=["POST"])
+def grant():
+    if "username" in session:
+        userId = session["userId"]
+        dbresponse = dbSelectCallEsc(mysql, "SELECT EXISTS(SELECT * FROM administrators WHERE userId = %s);", [userId])[0][0]
+        if dbresponse == 1:
+            userIdToGrant = request.form["userId"]
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO administrators (userid) VALUES (%s);", [userIdToGrant])
+            cur.execute(f"INSERT INTO logs (author, message) VALUES ('Admin {userId}', 'Granted administrator to user {userIdToGrant}.');")
+            mysql.connection.commit()
+            cur.close()
+            return ""
+        else:
+            abort(404)
+    else:
+        abort(404)
+
+
+@app.route("/revoke", methods=["POST"])
+def revoke():
+    if "username" in session:
+        userId = session["userId"]
+        dbresponse = dbSelectCallEsc(mysql, "SELECT EXISTS(SELECT * FROM administrators WHERE userId = %s);", [userId])[0][0]
+        if dbresponse == 1:
+            userIdToRevoke = request.form["userId"]
+            cur = mysql.connection.cursor()
+            cur.execute("DELETE FROM administrators WHERE userid = %s;", [userIdToRevoke])
+            cur.execute(f"INSERT INTO logs (author, message) VALUES ('Admin {userId}', 'Revoked administrator from user {userIdToRevoke}.');")
             mysql.connection.commit()
             cur.close()
             return ""
@@ -264,14 +345,14 @@ def deleteitem():
 
 @app.route("/logout")
 def logout():
+    userId = session["userId"]
     session.pop('username', None)
     session.pop('userId', None)
+    cur = mysql.connection.cursor()
+    cur.execute(f"INSERT INTO logs (author, message) VALUES ('User {userId}', 'Logged off.');")
+    mysql.connection.commit()
+    cur.close()
     return redirect(url_for('index'))
-
-
-@app.route("/test")
-def test():
-    pass
 
 
 if __name__ == "__main__":

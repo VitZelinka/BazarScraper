@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=1024">
     <title>Browse</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script src="static/BrowseScripts.js"></script>
   </head>
   <body>
@@ -52,7 +53,7 @@
           <li class="list-item">
             <img src={{n[1]}} class="item-image">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
-              <h4 style="overflow-wrap: break-word; width: 480px;">{{n[0]}}</h4>
+              <a class="item-link" href="{{n[3]}}">{{n[0]}}</a>
               <div style="display: flex; justify-content: flex-start;">
                 <p class="itemid">ITEMID: {{n[2]}}</p>
                 <p>Bazar: {{n[4]}}</p>
