@@ -6,9 +6,9 @@ from functions import dbSelectCall, dbSelectCallEsc
 app = Flask(__name__)
 
 app.secret_key = b'7s86sd5fsd567fs5678'
-app.config['MYSQL_HOST'] = '192.168.0.188'
-app.config['MYSQL_USER'] = 'client'
-app.config['MYSQL_PASSWORD'] = 'memicko'
+app.config['MYSQL_HOST'] = '127.0.0.1'
+app.config['MYSQL_USER'] = 'web'
+app.config['MYSQL_PASSWORD'] = 'maturitniprace'
 app.config['MYSQL_DB'] = 'bazarscraper'
 
 mysql = MySQL(app)
@@ -356,4 +356,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
