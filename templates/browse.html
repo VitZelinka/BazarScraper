@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1024">
-    <title>Browse</title>
+    <title>Prohlížet</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script src="static/BrowseScripts.js"></script>
@@ -12,35 +12,35 @@
     <div class="top-navbar">
       <img class="logo" src="static/placeholderlogo.png" onclick="location.href='/home'">
       <ul class="top-navbar-list">
-        <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
-        <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/home'">Domů</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/browse'">Prohlížet</button></li>
         {% if loggedIn == True %}
-          <li><button class="top-navbar-button" onclick="location.href='/profile'">Profile</button></li>
+          <li><button class="top-navbar-button" onclick="location.href='/profile'">Profil</button></li>
         {% else %}
-          <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Register</button></li>
+          <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Registrace</button></li>
         {% endif %}
       </ul>
     </div>
     <div class="search-div">
       <div>
         <form method="GET">
-          <span><input class="search-bar" type="text" placeholder="Search" class="inputField" name="search"></span><span><button class="submitButton search-button" type="submit">Search</button></span>
+          <span><input class="search-bar" type="text" placeholder="Hledat" class="inputField" name="search"></span><span><button class="submitButton search-button" type="submit">Hledat</button></span>
           <div style="display: flex; justify-content: flex-start; color: white;">
             <div style="margin: 10px 30px 10px 45px;">
-              Sort by:
+              Řadit podle:
               <select class="generic-selector" name="sort">
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
+                <option value="newest">Nový</option>
+                <option value="oldest">Starý</option>
                 <option value="alphasc">A-Z</option>
                 <option value="alphdes">Z-A</option>
               </select>
             </div>
             <div style="margin: 10px 0px;">
-              From:
+              Z bazaru:
               <select class="generic-selector" name="bazar">
-                <option value="any">Any</option>
+                <option value="any">Všechny</option>
                 <option value="sbazar">Sbazar</option>
-                <option value="bazos">Bazos</option>
+                <option value="bazos">Bazoš</option>
               </select>
             </div>
           </div>
@@ -55,19 +55,19 @@
             <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
               <a class="item-link" href="{{n[3]}}">{{n[0]}}</a>
               <div style="display: flex; justify-content: flex-start;">
-                <p class="itemid">ITEMID: {{n[2]}}</p>
+                <p class="itemid">ItemID: {{n[2]}}</p>
                 <p>Bazar: {{n[4]}}</p>
               </div>
               <div>
                 {% if loggedIn == True %}
                   {% if n[2] in favItems %}
-                    <button class="generic-button" id="favAddButton{{n[2]}}" type="submit" style="display:none;" onclick="addToFavourites({{n[2]}}, this.id)">Add to favourites</button>
-                    <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove from favourites</button>
+                    <button class="generic-button" id="favAddButton{{n[2]}}" type="submit" style="display:none;" onclick="addToFavourites({{n[2]}}, this.id)">Dát do oblíbených</button>
+                    <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavourites({{n[2]}}, this.id)">Odebrat z oblíbených</button>
                   {% else %}
-                    <button class="generic-button" id="favAddButton{{n[2]}}" type="submit" onclick="addToFavourites({{n[2]}}, this.id)">Add to favourites</button>
-                    <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" style="display:none;" onclick="removeFromFavourites({{n[2]}}, this.id)">Remove from favourites</button>
+                    <button class="generic-button" id="favAddButton{{n[2]}}" type="submit" onclick="addToFavourites({{n[2]}}, this.id)">Dát do oblíbených</button>
+                    <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" style="display:none;" onclick="removeFromFavourites({{n[2]}}, this.id)">Odebrat z oblíbených</button>
                   {% endif %}
-                  <button class="generic-button" style="margin-left: 15px;" type="submit" onclick="openReportPopup({{n[2]}})">Report</button>
+                  <button class="generic-button" style="margin-left: 15px;" type="submit" onclick="openReportPopup({{n[2]}})">Nahlásit</button>
                 {% endif %}
               </div>
             </div>
@@ -78,24 +78,24 @@
     <div class="page-control-container">
       {% if pageData[1] == 1 and (pageData[2]/pageData[3]) > 1 %}
         <span> {{pageData[1]}} </span>
-        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Next</a>
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Další</a>
       {% elif pageData[2]/(pageData[3]*pageData[1]) > 1 %}
-        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Prev</a>
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Předešlá</a>
         <span> {{pageData[1]}} </span>
-        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Next</a>
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]+1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Další</a>
       {% elif pageData[1] == 1 %}
         <span> {{pageData[1]}} </span>
       {% else %}
-        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Prev</a>
+        <a href="{{url_for(request.endpoint)}}?search={{pageData[0]}}&page={{pageData[1]-1}}&sort={{pageData[4]}}&bazar={{pageData[5]}}">Předešlá</a>
         <span> {{pageData[1]}} </span>
       {% endif %}
     </div>
     <div class="report-popup" id="report-popup-window">
       <div class="report-popup-content">
-        <h2>Report Item</h2>
-        <p>Are you sure you want to report this item?</p>
-        <button class="generic-button" style="margin-right: 5px;" onclick="closeReportPopup()">Cancel</button>
-        <button class="generic-button" style="margin-left: 5px;" onclick="reportItem()">Report</button>
+        <h2>Nahlásit Inzerát</h2>
+        <p>Opravdu chcete nahlásit inzerát?</p>
+        <button class="generic-button" style="margin-right: 5px;" onclick="closeReportPopup()">Zrušit</button>
+        <button class="generic-button" style="margin-left: 5px;" onclick="reportItem()">Nahlásit</button>
       </div>
     </div>
   </body>

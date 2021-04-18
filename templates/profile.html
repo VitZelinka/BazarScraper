@@ -3,7 +3,7 @@
   <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=1024">
-   <title>Profile</title>
+   <title>Profil</title>
    <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
    <script src="static/ProfileScripts.js"></script>
@@ -12,20 +12,23 @@
     <div class="top-navbar">
       <img class="logo" src="static/placeholderlogo.png" onclick="location.href='/home'">
       <ul class="top-navbar-list">
-        <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
-        <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/home'">Domů</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/browse'">Prohlížet</button></li>
         {% if loggedIn == True %}
-          <li><button class="top-navbar-button" onclick="location.href='/profile'">Profile</button></li>
+          <li><button class="top-navbar-button" onclick="location.href='/profile'">Profil</button></li>
         {% else %}
-          <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Register</button></li>
+          <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Registrace</button></li>
         {% endif %}
       </ul>
     </div>
     <div class="profile-info-container">
       <div style="display: flex; background-color: #0E4D92; border-radius: 20px;">
-        <h2 style="padding: 0px 20px; color: white;">Username: {{username}}</h2>
+        <h2 style="padding: 0px 20px; color: white;">Jméno: {{username}}</h2>
         <div style="display: flex; justify-content: center; align-items: center;" >
           <button class="generic-button" style="margin-right: 20px;" onclick="location.href='/logout'">Logout</button>
+          {% if adminAccount == True %}
+            <button class="generic-button" style="margin-right: 20px;" onclick="location.href='/admin'">Admin Hub</button>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -39,11 +42,11 @@
             <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
               <h4 style="overflow-wrap: break-word; width: 480px;">{{n[0]}}</h4>
               <div style="display: flex; justify-content: flex-start;">
-                <p class="itemid">ITEMID: {{n[2]}}</p>
+                <p class="itemid">ItemID: {{n[2]}}</p>
                 <p>Bazar: {{n[4]}}</p>
               </div>
               <div>
-                <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavouritesProfile({{n[2]}}, this)">Remove from favourites</button>
+                <button class="generic-button" id="favRemButton{{n[2]}}" type="submit" onclick="removeFromFavouritesProfile({{n[2]}}, this)">Odebrat z oblíbených</button>
               </div>
             </div>
           </li>

@@ -11,7 +11,7 @@
   <body class="page-admin">
     <div class="top-navbar-admin">
       <ul class="top-navbar-list-admin">
-        <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/home'">Domů</button></li>
         <li><button class="top-navbar-button" onclick="location.href='/logout'">Logout</button></li>
       </ul>
     </div>
@@ -20,10 +20,10 @@
     </div>
     <div style="width: 100%;">
       <ul class="top-navbar-list-admin" style="justify-content: center;">
-        <li><button class="top-navbar-button" onclick="showItems()">Items</button></li>
-        <li><button class="top-navbar-button" onclick="showUsers()">Users</button></li>
-        <li><button class="top-navbar-button" onclick="showReports()">Reports</button></li>
-        <li><button class="top-navbar-button" onclick="showLogs()">Logs</button></li>
+        <li><button class="top-navbar-button" onclick="showItems()">Inzeráty</button></li>
+        <li><button class="top-navbar-button" onclick="showUsers()">Uživatelé</button></li>
+        <li><button class="top-navbar-button" onclick="showReports()">Nahlášení</button></li>
+        <li><button class="top-navbar-button" onclick="showLogs()">Logy</button></li>
       </ul>
     </div>
     <div id="AdminItemsList" class="admin-list-container">
@@ -34,19 +34,19 @@
             <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
               <a href="{{n[3]}}" class="item-link">{{n[0]}}</a>
               <div style="display: flex; justify-content: flex-start;">
-                <p class="itemid">ITEMID: {{n[2]}}</p>
+                <p class="itemid">ItemID: {{n[2]}}</p>
                 <p style="margin-right: 10px;">Bazar: {{n[4]}}</p>
                 <p>Date: {{n[5]}}</p>
               </div>
               <div>
                 {% if n[2] in unpItems %}
-                  <button class="generic-button" id="unpublishButton{{n[2]}}" type="submit" style="display: none;" onclick="unpublishItem({{n[2]}}, this.id)">Unpublish</button>
-                  <button class="generic-button" id="publishButton{{n[2]}}" type="submit" onclick="publishItem({{n[2]}}, this.id)">Publish</button>
+                  <button class="generic-button" id="unpublishButton{{n[2]}}" type="submit" style="display: none;" onclick="unpublishItem({{n[2]}}, this.id)">Schovat</button>
+                  <button class="generic-button" id="publishButton{{n[2]}}" type="submit" onclick="publishItem({{n[2]}}, this.id)">Publikovat</button>
                 {% else %}
-                  <button class="generic-button" id="unpublishButton{{n[2]}}" type="submit" onclick="unpublishItem({{n[2]}}, this.id)">Unpublish</button>
-                  <button class="generic-button" id="publishButton{{n[2]}}" type="submit" style="display: none;" onclick="publishItem({{n[2]}}, this.id)">Publish</button>
+                  <button class="generic-button" id="unpublishButton{{n[2]}}" type="submit" onclick="unpublishItem({{n[2]}}, this.id)">Schovat</button>
+                  <button class="generic-button" id="publishButton{{n[2]}}" type="submit" style="display: none;" onclick="publishItem({{n[2]}}, this.id)">Publikovat</button>
                 {% endif %}
-                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItem({{n[2]}})">Remove from DB</button>
+                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItem({{n[2]}})">Odstranit z DB</button>
               </div>
             </div>
           </li>
@@ -59,17 +59,17 @@
           <li class="list-item" style="width: 450px;" id="us{{n[0]}}">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
               <div style="display: flex; justify-content: flex-start;">
-                <p class="itemid" style="margin-right: 10px;">Username: {{n[1]}}</p>
+                <p class="itemid" style="margin-right: 10px;">Jméno: {{n[1]}}</p>
                 <p style="margin-right: 10px;">UserID: {{n[0]}}</p>
               </div>
               <div>
-                <button class="generic-button" id="removeButton{{n[0]}}" type="submit" onclick="removeUser({{n[0]}})">Remove from DB</button>
+                <button class="generic-button" id="removeButton{{n[0]}}" type="submit" onclick="removeUser({{n[0]}})">Odstranit z DB</button>
                 {% if n[0] in admins %}
-                  <button class="generic-button" id="RevokeAdmin{{n[0]}}" type="submit" onclick="revoke({{n[0]}}, this.id)">Revoke Admin</button>
-                  <button class="generic-button" id="GrantAdmin{{n[0]}}" style="display: none;" type="submit" onclick="grant({{n[0]}}, this.id)">Grant Admin</button>
+                  <button class="generic-button" id="RevokeAdmin{{n[0]}}" type="submit" onclick="revoke({{n[0]}}, this.id)">Odebrat Admina</button>
+                  <button class="generic-button" id="GrantAdmin{{n[0]}}" style="display: none;" type="submit" onclick="grant({{n[0]}}, this.id)">Přidat Admina</button>
                 {% else %}
-                  <button class="generic-button" id="GrantAdmin{{n[0]}}" type="submit" onclick="grant({{n[0]}}, this.id)">Grant Admin</button>
-                  <button class="generic-button" id="RevokeAdmin{{n[0]}}" style="display: none;" type="submit" onclick="revoke({{n[0]}}, this.id)">Revoke Admin</button>
+                  <button class="generic-button" id="GrantAdmin{{n[0]}}" type="submit" onclick="grant({{n[0]}}, this.id)">Přidat Admina</button>
+                  <button class="generic-button" id="RevokeAdmin{{n[0]}}" style="display: none;" type="submit" onclick="revoke({{n[0]}}, this.id)">Odebrat Admina</button>
                 {% endif %}
               </div>
             </div>
@@ -85,18 +85,18 @@
             <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 500px;">
               <a href="{{n[3]}}" class="item-link">{{n[0]}}</a>
               <div style="display: flex; justify-content: flex-start;">
-                <p class="itemid">ITEMID: {{n[2]}}</p>
-                <p style="margin-right: 10px;">Reports: {{n[4]}}</p>
+                <p class="itemid">ItemID: {{n[2]}}</p>
+                <p style="margin-right: 10px;">Nahlášení: {{n[4]}}</p>
               </div>
               <div>
                 {% if n[2] in unpItems %}
-                  <button class="generic-button" id="unpublishButtonRep{{n[2]}}" type="submit" style="display: none;" onclick="unpublishItemRep({{n[2]}}, this.id)">Unpublish</button>
-                  <button class="generic-button" id="publishButtonRep{{n[2]}}" type="submit" onclick="publishItemRep({{n[2]}}, this.id)">Publish</button>
+                  <button class="generic-button" id="unpublishButtonRep{{n[2]}}" type="submit" style="display: none;" onclick="unpublishItemRep({{n[2]}}, this.id)">Schovat</button>
+                  <button class="generic-button" id="publishButtonRep{{n[2]}}" type="submit" onclick="publishItemRep({{n[2]}}, this.id)">Publikovat</button>
                 {% else %}
-                  <button class="generic-button" id="unpublishButtonRep{{n[2]}}" type="submit" onclick="unpublishItemRep({{n[2]}}, this.id)">Unpublish</button>
-                  <button class="generic-button" id="publishButtonRep{{n[2]}}" type="submit" style="display: none;" onclick="publishItemRep({{n[2]}}, this.id)">Publish</button>
+                  <button class="generic-button" id="unpublishButtonRep{{n[2]}}" type="submit" onclick="unpublishItemRep({{n[2]}}, this.id)">Schovat</button>
+                  <button class="generic-button" id="publishButtonRep{{n[2]}}" type="submit" style="display: none;" onclick="publishItemRep({{n[2]}}, this.id)">Publikovat</button>
                 {% endif %}
-                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItemRep({{n[2]}})">Remove from DB</button>
+                <button class="generic-button" id="removeButton{{n[2]}}" type="submit" onclick="removeItemRep({{n[2]}})">Odstranit z DB</button>
               </div>
             </div>
           </li>
@@ -111,8 +111,8 @@
                 <p style="margin-left: 10px;">{{n[2]}}</p>
                 <div style="display: flex;">
                   <p style="margin: 0px 10px;">LogID: {{n[0]}}</p>
-                  <p style="margin: 0px 10px;">Author: {{n[1]}}</p>
-                  <p style="margin: 0px 10px;">Date: {{n[3]}}</p>
+                  <p style="margin: 0px 10px;">Autor: {{n[1]}}</p>
+                  <p style="margin: 0px 10px;">Datum: {{n[3]}}</p>
                 </div>
               </div>
             </li>

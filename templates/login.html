@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1024">
-    <title>Login/Register</title>
+    <title>Login/Registrace</title>
     <link rel="stylesheet" type="text/css" href="{{url_for("static", filename="style.css")}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script src="static/ProfileScripts.js"></script>
@@ -12,9 +12,9 @@
     <div class="top-navbar">
       <img class="logo" src="static/placeholderlogo.png" onclick="location.href='/home'">
       <ul class="top-navbar-list">
-        <li><button class="top-navbar-button" onclick="location.href='/home'">Home</button></li>
-        <li><button class="top-navbar-button" onclick="location.href='/browse'">Browse</button></li>
-        <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Register</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/home'">Domů</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/browse'">Prohlížet</button></li>
+        <li><button class="top-navbar-button" onclick="location.href='/authorize'">Login / Registrace</button></li>
       </ul>
     </div>
     <div class="auth-input-container">
@@ -23,28 +23,28 @@
         <button class="generic-button" style="width: 80px; background-color: #0E4D92;" onclick="changeToRegister()">Register</button>
       </div>
       <form class="auth-form" id="login-form" method="POST">
-        <input type="text" placeholder="Username" class="inputField" name="user">
+        <input type="text" placeholder="Jméno" class="inputField" name="user">
         <br>
-        <input type="password" placeholder="Password" class="inputField" name="pass">
+        <input type="password" placeholder="Heslo" class="inputField" name="pass">
         <br>
         <button class="submitButton generic-button" type="submit" name="loginForm">Log in</button>
       </form>
       <form class="auth-form" id="register-form" method="POST">
-        <input type="text" placeholder="Username" class="inputField" name="user">
+        <input type="text" placeholder="Jméno" class="inputField" name="user">
         <br>
-        <input type="password" placeholder="Password" class="inputField" name="pass">
+        <input type="password" placeholder="Heslo" class="inputField" name="pass">
         <br>
-        <button class="submitButton generic-button" type="submit" name="registerForm">Register</button>
+        <button class="submitButton generic-button" type="submit" name="registerForm">Registrovat</button>
       </form>
     </div>
     {% if authResult == "BadLogin" %}
-      <h2 class="auth-message">Wrong username or password.</h2>
+      <h2 class="auth-message">Špatné jméno či heslo.</h2>
     {% elif authResult == "UsernameExists" %}
-      <h2 class="auth-message">Username already exists.</h2>
+      <h2 class="auth-message">Jméno už existuje.</h2>
     {% elif authResult == "UsernameTooShort" %}
-      <h2 class="auth-message">Username is too short.</h2>
+      <h2 class="auth-message">Jméno je příliš krátké.</h2>
     {% elif authResult == "PassTooShort" %}
-      <h2 class="auth-message">Password is too short.</h2>
+      <h2 class="auth-message">Heslo je příliš krátké.</h2>
     {% endif %}
   </body>
 </html>

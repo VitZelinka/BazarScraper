@@ -146,7 +146,11 @@ def profile():
         userId = session["userId"]
         dbresponse = dbSelectCallEsc(mysql, """SELECT items.heading, items.imgurl, items.itemid, items.url, items.bazar 
             FROM items INNER JOIN favourites ON items.itemid=favourites.itemid WHERE userid=%s;""", [userId])
-        return render_template("profile.html", items=dbresponse, username=username, loggedIn=True)
+        dbresponseAdmin = dbSelectCallEsc(mysql, "SELECT EXISTS(SELECT * FROM administrators WHERE userId = %s);", [userId])[0][0]
+        adminAccount = False
+        if dbresponseAdmin == 1:
+            adminAccount = True
+        return render_template("profile.html", items=dbresponse, username=username, loggedIn=True, adminAccount=adminAccount)
     return redirect(url_for('auth'))
 
 
